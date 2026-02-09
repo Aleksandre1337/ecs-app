@@ -11,6 +11,8 @@ jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       
@@ -59,13 +61,10 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY || 'ecs-demo-frontend' }}
-          IMAGE_TAG: ${{ github.sha }}
           VERSION_TAG: ${{ steps.bump-version.outputs.new_tag }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REPOSITORY:latest
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG $ECR_REPOSITORY:latest
       
       - name: Test Docker image
         run: |
@@ -79,12 +78,9 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY || 'ecs-demo-frontend' }}
-          IMAGE_TAG: ${{ github.sha }}
           VERSION_TAG: ${{ steps.bump-version.outputs.new_tag }}
         run: |
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
       
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main'
@@ -104,24 +100,17 @@ jobs:
           - **Timestamp**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
           - **Actor**: ${{ github.actor }}
           
-          ## Docker Images
+          ## Docker Image
           
           \`\`\`
           $ECR_REGISTRY/$ECR_REPOSITORY:$NEW_TAG
-          $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
-          $ECR_REGISTRY/$ECR_REPOSITORY:latest
           \`\`\`
           
           ## Deployment
           
-          Pull the image by version:
+          Pull the image:
           \`\`\`bash
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$NEW_TAG
-          \`\`\`
-          
-          Or by commit SHA:
-          \`\`\`bash
-          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
           \`\`\`
           EOF
           
