@@ -86,32 +86,6 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
       
-      - name: Get latest tag and bump version
-        id: bump-version
-        run: |
-          # Fetch all tags
-          git fetch --tags
-          
-          # Get latest tag (assumes format x.y.z)
-          LATEST_TAG=$(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1)
-          
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No existing tag found, using 0.0.0"
-            LATEST_TAG="0.0.0"
-          fi
-          
-          echo "Latest tag: $LATEST_TAG"
-          
-          # Parse version components
-          IFS='.' read -r major minor patch <<< "$LATEST_TAG"
-          
-          # Bump patch version
-          NEW_PATCH=$((patch + 1))
-          NEW_TAG="${major}.${minor}.${NEW_PATCH}"
-          
-          echo "New tag: $NEW_TAG"
-          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
-      
       - name: Create GitHub Release
         if: github.ref == 'refs/heads/main'
         env:
