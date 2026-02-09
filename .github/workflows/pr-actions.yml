@@ -24,7 +24,6 @@ jobs:
       - name: Lint with flake8
         run: |
           flake8 app.py --max-line-length=120 --ignore=E501
-        continue-on-error: true
 
   test:
     name: Run Tests
