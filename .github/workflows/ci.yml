@@ -116,6 +116,6 @@ jobs:
           
           # Create the release
           gh release create "$NEW_TAG" \
-            --title "Release $NEW_TAG" \
+            --title "$NEW_TAG" \
             --notes-file release-body.md \
             --target ${{ github.sha }}
