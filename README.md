@@ -87,6 +87,5 @@ Configure the following secrets in GitHub repository settings:
 - `AWS_ACCESS_KEY_ID` - AWS access key for ECR push
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key for ECR push
 - `AWS_REGION` - AWS region (default: us-east-1)
-- `ECR_REPOSITORY` - ECR repository name (default: ecs-demo-app)
 
 The CI pipeline will automatically push to ECR on commits to the main branch.
