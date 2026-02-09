@@ -7,6 +7,7 @@ from bson.objectid import ObjectId
 app = Flask(__name__)
 
 # MongoDB configuration
+MONGO_URI = os.getenv('MONGO_URI', None)  # For Atlas or authenticated connections
 MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
 MONGO_PORT = int(os.getenv('MONGO_PORT', 27017))
 MONGO_DB = os.getenv('MONGO_DB', 'ecs_demo')
@@ -14,11 +15,19 @@ MONGO_DB = os.getenv('MONGO_DB', 'ecs_demo')
 
 def get_mongo_client():
     try:
-        client = MongoClient(
-            host=MONGO_HOST,
-            port=MONGO_PORT,
-            serverSelectionTimeoutMS=2000
-        )
+        if MONGO_URI:
+            # Use connection URI (for Atlas or authenticated MongoDB)
+            client = MongoClient(
+                MONGO_URI,
+                serverSelectionTimeoutMS=2000
+            )
+        else:
+            # Use host/port (for local MongoDB)
+            client = MongoClient(
+                host=MONGO_HOST,
+                port=MONGO_PORT,
+                serverSelectionTimeoutMS=2000
+            )
         client.admin.command('ping')
         return client
     except ConnectionFailure:
