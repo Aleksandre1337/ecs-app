@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECS Demo App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ECS Demo Application</h1>
+            <div class="status-badge {{ 'connected' if db_connected else 'disconnected' }}">
+                {{ 'Connected' if db_connected else 'Disconnected' }}
+            </div>
+        </header>
+
+        <section>
+            <h2>Add New Item</h2>
+            <form method="POST" action="/add" class="add-form">
+                <input type="text" name="name" placeholder="Item Name" required>
+                <input type="number" name="price" placeholder="Price" required>
+                
+                <div id="dynamic-fields-container"></div>
+                
+                <button type="button" class="btn btn-success btn-small" onclick="addField()">+ Add Field</button>
+                <button type="submit" class="btn btn-primary">Add Item</button>
+            </form>
+        </section>
+
+        <section class="items-section">
+            <h2>Items ({{ items|length }})</h2>
+            {% if items %}
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Additional Data</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>${{ item.price }}</td>
+                        <td>
+                            {% for key, value in item.items() %}
+                                {% if key not in ['_id', 'name', 'price'] %}
+                                    <strong>{{ key }}:</strong> {{ value }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <form method="POST" action="/delete/{{ item._id }}" class="delete-form">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-message">No items found.</p>
+            {% endif %}
+        </section>
+
+        <footer>
+            <a href="/api/items" class="api-link">View API Endpoint</a>
+        </footer>
+    </div>
+
+    <script>
+        function addField() {
+            const container = document.getElementById('dynamic-fields-container');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'dynamic-field';
+            fieldDiv.innerHTML = `
+                <input type="text" name="field_key[]" placeholder="Field name">
+                <input type="text" name="field_value[]" placeholder="Field value">
+                <button type="button" class="btn btn-danger btn-small" onclick="removeField(this)">Remove</button>
+            `;
+            container.appendChild(fieldDiv);
+        }
+
+        function removeField(button) {
+            button.parentElement.remove();
+        }
+    </script>
+</body>
+</html>
