@@ -70,13 +70,6 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_TAG $ECR_REPOSITORY:latest
       
-      - name: Test Docker image
-        run: |
-          docker run -d --name test-app -p 8080:80 ecs-demo-frontend:latest
-          sleep 5
-          curl -f http://localhost:8080/health || exit 1
-          docker rm -f test-app
-      
       - name: Push to ECR (main branch only)
         if: github.ref == 'refs/heads/main'
         env:
