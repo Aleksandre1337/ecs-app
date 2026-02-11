@@ -1,7 +1,0 @@
-name: PR Checks for Flask App
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]

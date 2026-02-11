@@ -52,6 +52,7 @@ jobs:
       - name: Run application health check
         run: |
           export MONGO_HOST=localhost
-          python app.py &
+          PYTHON_PATH=$(which python)
+          sudo -E $PYTHON_PATH app.py &
           sleep 5
           curl -f http://localhost:80/health || exit 1
